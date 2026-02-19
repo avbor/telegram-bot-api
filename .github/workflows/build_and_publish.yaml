@@ -88,7 +88,9 @@ jobs:
 
       - name: Create Multi-Arch Manifest
         run: |
-          docker buildx imagetools create $(echo $DOCKER_METADATA_OUTPUT_TAGS | sed 's/,/ -t /g' | sed 's/^/-t /') \
+          RAW_TAGS="${{ steps.meta.outputs.tags }}"
+          TAGS_ARGS=$(echo $RAW_TAGS | sed 's/[^[:space:]]\+/--tag &/g')
+          docker buildx imagetools create $TAGS_ARGS \
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}-amd64 \
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}-aarch64
         env:
