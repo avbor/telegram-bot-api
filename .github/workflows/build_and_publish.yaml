@@ -8,14 +8,9 @@ env:
   IMAGE_NAME: ${{ github.repository }}
 
 jobs:
-
-  publish:
-    name: Build and Publish
-
-    permissions:
-      contents: read
-      packages: write
-
+  build:
+    name: Build platform-specific images
+    runs-on: ${{ matrix.runner }}
     strategy:
       matrix:
         include:
@@ -26,31 +21,63 @@ jobs:
             runner: ubuntu-24.04-arm
             arch: aarch64
 
-    runs-on: ${{ matrix.runner }}
+    permissions:
+      contents: read
+      packages: write
 
     steps:
-      - name: Checkout the repository
-        uses: actions/checkout@v6
+      - name: Checkout
+        uses: actions/checkout@v4
 
-      - name: Login to GitHub Container Registry
+      - name: Get BUILD_VERSION
+        run: echo "VERSION=$(grep "ARG BUILD_VERSION=" Dockerfile | cut -d'=' -f2 | tr -d '"')" >> $GITHUB_ENV
+
+      - name: Login to GHCR
         uses: docker/login-action@v3
         with:
           registry: ${{ env.REGISTRY }}
-          username: ${{ github.repository_owner }}
+          username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Get BUILD_VERSION
-        run: echo "$(grep "ARG BUILD_VERSION=" Dockerfile | cut -d' ' -f2 | tr -d '"')" >> $GITHUB_ENV
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
 
-      - name: Get platform
-        run: echo "PLATFORM=$(echo ${{ matrix.arch }} | sed -e 's/aarch64/arm64/g')" >> $GITHUB_ENV
-      
-      - name: Build and publish
-        uses: docker/build-push-action@master
+      - name: Build and push by arch
+        uses: docker/build-push-action@v6
         with:
           context: .
+          platforms: ${{ matrix.platform }}
           push: true
-          platforms: linux/${{ env.PLATFORM }}
-          tags: ${{ env.REGISTRY }}/${{ github.repository }}/${{ matrix.arch }}:${{ env.BUILD_VERSION }}
-          build-args: |
-            "BUILD_ARCH=${{ matrix.arch }}"
+          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.VERSION }}-${{ matrix.arch }}
+          build-args: BUILD_ARCH=${{ matrix.arch }}
+
+  merge:
+    name: Merge manifests
+    runs-on: ubuntu-latest
+    needs: build
+    permissions:
+      packages: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Get BUILD_VERSION
+        run: echo "VERSION=$(grep "ARG BUILD_VERSION=" Dockerfile | cut -d'=' -f2 | tr -d '"')" >> $GITHUB_ENV
+
+      - name: Login to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Create Multi-Arch Manifest
+        run: |
+          docker buildx imagetools create -t ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest \
+            -t ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.VERSION }} \
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.VERSION }}-amd64 \
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.VERSION }}-arm64
+
+      - name: Inspect result
+        run: |
+          docker buildx imagetools inspect ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.VERSION }}
