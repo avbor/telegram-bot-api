@@ -103,18 +103,38 @@ jobs:
     needs: merge
     permissions:
       contents: write
+      packages: read
     steps:
       - name: Checkout
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: Generate Changelog
-        id: changelog
+      - name: Login to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Prepare Assets (Pull, Tag, Compress)
+        run: |
+          VERSION=${GITHUB_REF_NAME#v}
+          docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}-amd64
+          docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}-aarch64
+          docker tag ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}-amd64 telegram-bot-api:${VERSION}-amd64
+          docker tag ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}-aarch64 telegram-bot-api:${VERSION}-aarch64
+          docker save telegram-bot-api:${VERSION}-amd64 | gzip > telegram-bot-api-${VERSION}-amd64.tar.gz
+          docker save telegram-bot-api:${VERSION}-aarch64 | gzip > telegram-bot-api-${VERSION}-arm64.tar.gz
+
+      - name: Create Release and Upload Assets
         uses: softprops/action-gh-release@v2
         with:
           generate_release_notes: false
           draft: true
           prerelease: false
+          files: |
+            telegram-bot-api-*-amd64.tar.gz
+            telegram-bot-api-*-arm64.tar.gz
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
