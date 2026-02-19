@@ -40,7 +40,7 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Get BUILD_VERSION
-        run: echo "$(grep "ARG BUILD_VERSION=" docker/Dockerfile | cut -d' ' -f2 | tr -d '"')" >> $GITHUB_ENV
+        run: echo "$(grep "ARG BUILD_VERSION=" Dockerfile | cut -d' ' -f2 | tr -d '"')" >> $GITHUB_ENV
 
       - name: Get platform
         run: echo "PLATFORM=$(echo ${{ matrix.arch }} | sed -e 's/aarch64/arm64/g')" >> $GITHUB_ENV
@@ -51,7 +51,6 @@ jobs:
           context: docker
           push: true
           platforms: linux/${{ env.PLATFORM }}
-          tags: |
-            ${{ env.REGISTRY }}/${{ github.repository }}/${{ matrix.arch }}:${{ env.BUILD_VERSION }}
+          tags: ${{ env.REGISTRY }}/${{ github.repository }}/${{ matrix.arch }}:${{ env.BUILD_VERSION }}
           build-args: |
             "BUILD_ARCH=${{ matrix.arch }}"
