@@ -1,10 +1,8 @@
-ARG BUILD_VERSION="9.4"
-
 # ---------- Build ----------
 FROM alpine:latest AS builder
 
 # Fix commit or tag:
-# example: --build-arg TELEGRAM_BOT_API_REF=v7.2
+# example: --build-arg TELEGRAM_BOT_API_REF=v9.4
 ARG TELEGRAM_BOT_API_REF=master
 
 # Install packages
@@ -14,7 +12,9 @@ RUN apk update && \
 
 # Clone sources
 WORKDIR /src
-RUN git clone --recursive https://github.com/tdlib/telegram-bot-api.git . --depth 1 --branch ${TELEGRAM_BOT_API_REF}
+RUN git clone --recursive https://github.com/tdlib/telegram-bot-api.git . --depth 1 && \
+    cd telegram-bot-api && \
+    git checkout ${TELEGRAM_BOT_API_REF}
 
 # Add patches to support proxy options
 COPY ./add_proxy/*.patch .
@@ -32,6 +32,8 @@ RUN strip /src/build/telegram-bot-api || true
 
 # ---------- Runtime ----------
 FROM alpine:latest
+
+ARG BUILD_VERSION="unknown"
 
 # Install packages
 RUN apk update && \
@@ -60,7 +62,7 @@ ENTRYPOINT ["/usr/local/bin/telegram-bot-api"]
 LABEL \
   maintainer="avbor (https://github.com/avbor)" \
   org.opencontainers.image.title="Telegram Bot API" \
-  org.opencontainers.image.description="Telegram Bot API server with proxy servers support" \
+  org.opencontainers.image.description="Telegram Bot API server with proxy server support" \
   org.opencontainers.image.authors="avbor (https://github.com/avbor)" \
   org.opencontainers.image.licenses="MIT" \
   org.opencontainers.image.url="https://github.com/avbor/telegram-bot-api" \

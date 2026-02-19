@@ -1,6 +1,6 @@
 services:
   telegram-bot-api:
-    image: 
+    image: ghcr.io/avbor/docker-telegram-bot-api:latest
     restart: unless-stopped
     volumes:
       - telegram-bot-api-data:/var/lib/telegram-bot-api

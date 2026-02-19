@@ -1,6 +1,24 @@
+## About
+
+This is a community supported Docker image for [Telegram Bot API](https://github.com/tdlib/telegram-bot-api).\
+Telegram Bot API is an app from the Telegram developers that allows you to replace the `api.telegram.org` resource with a local version.
+
+**In addition, this build allows you to use proxy server (MTProto, SOCKS5 or HTTP) to connect to the Telegram infrastructure.**
+
+You can use projects like [telemt](https://github.com/telemt/telemt/) or [mtg](https://github.com/9seconds/mtg) to overcome the limitations of Telegram infrastructure availability for your bots.
+
+## Docker compose
+
+You can use [docker-compose.yaml](https://github.com/avbor/docker-telegram-bot-api/blob/main/docker-compose.yaml) from this repo.\
+But don't forget to get the app-id and app-hash from https://my.telegram.org and specify them in the docker-compose file.
+
 ## Command-line options
 
 - `--local` allow the Bot API server to serve local requests
+- `--api-id=` application identifier for Telegram API access, which can be obtained at https://my.telegram.org \
+  Defaults to the value of the `TELEGRAM_API_ID` environment variable
+- `--api-hash=` application identifier hash for Telegram API access, which can be obtained at https://my.telegram.org \
+  Defaults to the value of the `TELEGRAM_API_HASH` environment variable
 - `--http-port=8081` HTTP listening port\
   Default is 8081
 - `--http-stat-port=8082` HTTP statistics port
@@ -34,7 +52,7 @@
 - `--proxy-secret=` Secret for the TDLib MTProto proxy
 
 
-## Examples with proxy
+## Proxy setup examples
 
 #### MTProto
 ./telegram-bot-api --api-id=YOUR_API_ID --api-hash=YOUR_API_HASH \
