@@ -1,9 +1,10 @@
 services:
   telegram-bot-api:
+    container_name: telegram-bot-api
     image: ghcr.io/avbor/docker-telegram-bot-api:latest
     restart: unless-stopped
     volumes:
-      - telegram-bot-api-data:/var/lib/telegram-bot-api
+      - data:/var/lib/telegram-bot-api
     environment:
       - TELEGRAM_API_ID=
       - TELEGRAM_API_HASH=
@@ -11,7 +12,8 @@ services:
       - 8081:8081
       - 127.0.0.1:8082:8082
     healthcheck:
-      test: ["CMD-SHELL", "curl -fsS http://localhost:8082 >/dev/null || exit 1"]
+      test:
+        ["CMD-SHELL", "curl -fsS http://localhost:8082 >/dev/null || exit 1"]
       interval: 30s
       timeout: 3s
       retries: 3
@@ -29,4 +31,4 @@ services:
 #      - --proxy-secret=
 
 volumes:
-  telegram-bot-api-data:
+  data:
