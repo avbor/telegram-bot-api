@@ -17,12 +17,16 @@ services:
       retries: 3
       start_period: 15s
     command:
-      --local
-      --http-port=8081
-      --http-stat-port=8082
-      --dir=/var/lib/telegram-bot-api
-      --temp-dir=/var/lib/telegram-bot-api/temp
-      --verbosity=1
+      - --local
+      - --http-port=8081
+      - --http-stat-port=8082
+      - --dir=/var/lib/telegram-bot-api
+      - --temp-dir=/var/lib/telegram-bot-api/temp
+      - --verbosity=1
+#      - --tdlib-proxy-type=mtproto
+#      - --proxy-server=
+#      - --proxy-port=
+#      - --proxy-secret=
 
 volumes:
   telegram-bot-api-data:
