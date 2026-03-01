@@ -120,8 +120,8 @@ jobs:
       - name: Prepare Assets (Pull, Tag, Compress)
         run: |
           VERSION=${GITHUB_REF_NAME#v}
-          docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}-amd64
-          docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}-aarch64
+          docker pull --platform linux/amd64 ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}-amd64
+          docker pull --platform linux/arm64 ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}-aarch64
           docker tag ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}-amd64 telegram-bot-api:${VERSION}-amd64
           docker tag ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}-aarch64 telegram-bot-api:${VERSION}-aarch64
           docker save telegram-bot-api:${VERSION}-amd64 | gzip > telegram-bot-api-${VERSION}-amd64.tar.gz
