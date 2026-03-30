@@ -42,7 +42,7 @@ RUN apk update && \
 
 # Create group, user and workdir
 RUN addgroup -S telegram-bot-api && \
-    adduser  -S -g telegram-bot-api -h /var/lib/telegram-bot-api -s /sbin/nologin telegram-bot-api && \
+    adduser -S -G telegram-bot-api -h /var/lib/telegram-bot-api -s /sbin/nologin telegram-bot-api && \
     mkdir -p /var/lib/telegram-bot-api && \
     chown -R telegram-bot-api:telegram-bot-api /var/lib/telegram-bot-api
 
