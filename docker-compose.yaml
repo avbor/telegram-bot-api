@@ -8,7 +8,8 @@ services:
     profiles:
       - fix-perms
     user: root
-    command: chown -R telegram-bot-api:telegram-bot-api /var/lib/telegram-bot-api
+    entrypoint: ["chown"]
+    command: ["-R", "telegram-bot-api:telegram-bot-api", "/var/lib/telegram-bot-api"]
     volumes:
       - data:/var/lib/telegram-bot-api
 
