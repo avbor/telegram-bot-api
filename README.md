@@ -11,8 +11,28 @@ You can use projects like [telemt](https://github.com/telemt/telemt/) or [mtg](h
 
 ## Docker compose
 
-You can use [docker-compose.yaml](https://github.com/avbor/docker-telegram-bot-api/blob/main/docker-compose.yaml) from this repo.\
-But don't forget to get the app-id and app-hash from https://my.telegram.org and specify them in the docker-compose file.
+You can use [docker-compose.yaml](https://github.com/avbor/docker-telegram-bot-api/blob/main/docker-compose.yaml) file from this repo.\
+Don't forget to obtain your `api-id` and `api-hash` from https://my.telegram.org and specify them in the docker-compose file.
+
+#### Quick Start:
+```
+mkdir -p /opt/telegram-bot-api && cd /opt/telegram-bot-api
+git clone https://github.com/avbor/docker-telegram-bot-api.git .
+# Customize your settings: add api-id, api-hash, proxy, etc.
+nano docker-compose.yaml
+# Run telegram-bot-api
+docker compose up -d
+```
+
+#### Troubleshooting:
+If you encounter an errors like:
+```
+Can't create files in the directory "/var/lib/telegram-bot-api/". Use --dir option to specify a writable working directory
+```
+This is usually a volume permissions issue. To fix it, run:
+```
+docker compose run --rm fix-perms
+```
 
 ## Command-line options
 
