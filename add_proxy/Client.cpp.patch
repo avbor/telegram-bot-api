@@ -1,6 +1,6 @@
---- a/telegram-bot-api/Client.cpp
-+++ b/telegram-bot-api/Client.cpp
-@@ -8542,6 +8542,32 @@ void Client::on_update_authorization_state() {
+--- ./telegram-bot-api/Client.cpp	2026-04-03 19:13:52.837844110 +0300
++++ Client.cpp	2026-04-03 19:13:11.519886744 +0300
+@@ -8743,6 +8743,32 @@
                       td::make_unique<TdOnOkCallback>());
        }
  
@@ -21,9 +21,9 @@
 +        
 +        if (proxy_type != nullptr) {
 +          auto proxy_obj = make_object<td_api::proxy>(
-+              parameters_->proxy_server_, 
-+              parameters_->proxy_port_, 
-+              std::move(proxy_type)
++            parameters_->proxy_server_, 
++            parameters_->proxy_port_, 
++            std::move(proxy_type)
 +          );
 +          send_request(make_object<td_api::addProxy>(std::move(proxy_obj), true),
 +                       td::make_unique<TdOnOkCallback>());
